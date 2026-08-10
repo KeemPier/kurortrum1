@@ -1,11 +1,10 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  'https://okaibdzoeteccckmgyvy.supabase.co',
-  'sb_publishable_JjjwbGDtHqQs4f1cygvYAA_csqm9wxt'
-)
+const SUPA_URL = 'https://okaibdzoeteccckmgyvy.supabase.co'
+const SUPA_KEY = 'sb_publishable_JjjwbGDtHqQs4f1cygvYAA_csqm9wxt'
+const supabase = createClient(SUPA_URL, SUPA_KEY)
 
 const LOGO_SVG = (
   <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 0 720 670" style={{ flexShrink: 0 }}>
@@ -14,17 +13,50 @@ const LOGO_SVG = (
   </svg>
 )
 
-export default function DashboardPage() {
-  const [token, setToken] = useState('')
+const PLANS = [
+  {
+    id: 'starter',
+    name: 'Стартер',
+    price: '990 ₽',
+    features: [
+      { text: 'До 3 объектов', on: true },
+      { text: 'Прямые заявки', on: true },
+      { text: 'Фото объектов', on: true },
+      { text: 'Продвижение', on: false },
+      { text: 'Приоритет в поиске', on: false },
+    ],
+    popular: false,
+  },
+  {
+    id: 'pro',
+    name: 'Про',
+    price: '1 990 ₽',
+    features: [
+      { text: 'До 10 объектов', on: true },
+      { text: 'Прямые заявки', on: true },
+      { text: 'Фото объектов', on: true },
+      { text: 'Продвижение', on: true },
+      { text: 'Приоритет в поиске', on: false },
+    ],
+    popular: true,
+  },
+  {
+    id: 'agency',
+    name: 'Агентство',
+    price: '4 990 ₽',
+    features: [
+      { text: 'Безлимит объектов', on: true },
+      { text: 'Прямые заявки', on: true },
+      { text: 'Фото объектов', on: true },
+      { text: 'Продвижение', on: true },
+      { text: 'Приоритет в поиске', on: true },
+    ],
+    popular: false,
+  },
+]
 
-  useEffect(() => {
-    const t = localStorage.getItem('sb_token')
-    if (!t) {
-      window.location.href = '/auth/login'
-    } else {
-      setToken(t)
-    }
-  }, [])
+export default function SubscriptionPage() {
+  const [requested, setRequested] = useState<string | null>(null)
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -37,10 +69,9 @@ export default function DashboardPage() {
       <style>{`
         @media (max-width: 768px) {
           .cabinet-nav { padding: 0 16px !important; }
-          .cabinet-nav-links { gap: 10px !important; }
-          .stats-grid { grid-template-columns: 1fr !important; }
-          .menu-grid { grid-template-columns: 1fr !important; }
           .cabinet-pad { padding: 24px 16px !important; }
+          .sub-plans-grid { grid-template-columns: 1fr !important; }
+          .sub-plan-popular { margin-top: 0 !important; }
         }
         @media (max-width: 480px) {
           .nav-wordmark { display: none !important; }
@@ -59,7 +90,7 @@ export default function DashboardPage() {
           </div>
         </a>
         <div className="cabinet-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <a className="cabinet-link" href="/dashboard" style={{ color: '#0F4C5C', fontSize: '14px', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>Кабинет</a>
+          <a className="cabinet-link" href="/dashboard" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none', whiteSpace: 'nowrap' }}>Кабинет</a>
           <a className="cabinet-link" href="/dashboard/properties" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none', whiteSpace: 'nowrap' }}>Мои объекты</a>
           <a className="cabinet-link" href="/dashboard/leads" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none', whiteSpace: 'nowrap' }}>Заявки</a>
           <button className="cabinet-logout" onClick={handleLogout} style={{ background: 'none', border: '1.5px solid #e5e7eb', color: '#374151', padding: '8px 18px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
@@ -69,53 +100,67 @@ export default function DashboardPage() {
       </nav>
 
       <div className="cabinet-pad" style={{ maxWidth: '900px', margin: '0 auto', padding: '32px 24px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#1a1a1a', marginBottom: '8px' }}>Добро пожаловать! 👋</h1>
-        <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '32px' }}>Управляйте своими объектами и заявками</p>
+        <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#1a1a1a', marginBottom: '4px' }}>Подписка</h1>
+        <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '8px' }}>Текущий тариф: <strong style={{ color: '#2BAE8E' }}>Пробный период</strong></p>
+        <p style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '28px' }}>Выберите тариф, который будет действовать после окончания бесплатного периода</p>
 
-        {/* Карточки статистики */}
-        <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '32px' }}>
-          <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px' }}>
-            <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>Мои объекты</div>
-            <div style={{ fontSize: '28px', fontWeight: 600, color: '#1a1a1a' }}>0</div>
-          </div>
-          <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px' }}>
-            <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>Заявки</div>
-            <div style={{ fontSize: '28px', fontWeight: 600, color: '#1a1a1a' }}>0</div>
-          </div>
-          <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px' }}>
-            <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>Подписка</div>
-            <div style={{ fontSize: '16px', fontWeight: 600, color: '#2BAE8E' }}>Пробный период</div>
-          </div>
+        <div className="sub-plans-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+          {PLANS.map(plan => (
+            <div
+              key={plan.id}
+              className={plan.popular ? 'sub-plan-popular' : ''}
+              style={{
+                background: 'white',
+                border: plan.popular ? '2px solid #2BAE8E' : '1px solid #e5e7eb',
+                borderRadius: '16px',
+                padding: '24px',
+                position: 'relative',
+                marginTop: plan.popular ? '-8px' : 0,
+              }}
+            >
+              {plan.popular && (
+                <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#2BAE8E', color: 'white', padding: '4px 16px', borderRadius: '999px', fontSize: '12px', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                  Популярный
+                </div>
+              )}
+              <div style={{ fontSize: '14px', fontWeight: 500, color: '#6b7280', marginBottom: '8px' }}>{plan.name}</div>
+              <div style={{ fontSize: '28px', fontWeight: 700, color: '#1a1a1a', marginBottom: '4px' }}>{plan.price}</div>
+              <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '20px' }}>в месяц</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                {plan.features.map(f => (
+                  <div key={f.text} style={{ fontSize: '14px', color: f.on ? '#374151' : '#9ca3af' }}>{f.on ? '✓' : '✗'} {f.text}</div>
+                ))}
+              </div>
+              {requested === plan.id ? (
+                <div style={{ textAlign: 'center', fontSize: '13px', color: '#0F4C5C', background: '#f0fdf9', border: '1px solid #2BAE8E', borderRadius: '10px', padding: '11px' }}>
+                  ✅ Заявка отправлена
+                </div>
+              ) : (
+                <button
+                  onClick={() => setRequested(plan.id)}
+                  style={{
+                    width: '100%',
+                    background: plan.popular ? '#2BAE8E' : 'white',
+                    color: plan.popular ? 'white' : '#2BAE8E',
+                    border: '1px solid #2BAE8E',
+                    padding: '11px',
+                    borderRadius: '10px',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  Выбрать тариф
+                </button>
+              )}
+            </div>
+          ))}
         </div>
 
-        {/* Меню */}
-        <div className="menu-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-          <a href="/dashboard/properties" style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', textDecoration: 'none', color: '#1a1a1a', display: 'block' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>🏠</div>
-            <div style={{ fontWeight: 500, fontSize: '16px', marginBottom: '4px' }}>Мои объекты</div>
-            <div style={{ fontSize: '13px', color: '#6b7280' }}>Добавить и управлять жильём</div>
-          </a>
-          <a href="/dashboard/leads" style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', textDecoration: 'none', color: '#1a1a1a', display: 'block' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>📩</div>
-            <div style={{ fontWeight: 500, fontSize: '16px', marginBottom: '4px' }}>Заявки</div>
-            <div style={{ fontSize: '13px', color: '#6b7280' }}>Заявки от туристов</div>
-          </a>
-          <a href="/dashboard/subscription" style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', textDecoration: 'none', color: '#1a1a1a', display: 'block' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>💳</div>
-            <div style={{ fontWeight: 500, fontSize: '16px', marginBottom: '4px' }}>Подписка</div>
-            <div style={{ fontSize: '13px', color: '#6b7280' }}>Тарифы и оплата</div>
-          </a>
-          <a href="/dashboard/stats" style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', textDecoration: 'none', color: '#1a1a1a', display: 'block' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>📊</div>
-            <div style={{ fontWeight: 500, fontSize: '16px', marginBottom: '4px' }}>Статистика</div>
-            <div style={{ fontSize: '13px', color: '#6b7280' }}>Просмотры и активность</div>
-          </a>
-          <a href="/dashboard/documents" style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', textDecoration: 'none', color: '#1a1a1a', display: 'block' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>📄</div>
-            <div style={{ fontWeight: 500, fontSize: '16px', marginBottom: '4px' }}>Документы</div>
-            <div style={{ fontSize: '13px', color: '#6b7280' }}>Юридические документы</div>
-          </a>
-        </div>
+        <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '20px' }}>
+          Онлайн-оплата тарифов подключается — по заявке мы свяжемся с вами и оформим переход вручную.
+        </p>
       </div>
     </main>
   )

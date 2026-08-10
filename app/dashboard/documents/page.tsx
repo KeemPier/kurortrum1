@@ -1,11 +1,9 @@
 'use client'
-import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  'https://okaibdzoeteccckmgyvy.supabase.co',
-  'sb_publishable_JjjwbGDtHqQs4f1cygvYAA_csqm9wxt'
-)
+const SUPA_URL = 'https://okaibdzoeteccckmgyvy.supabase.co'
+const SUPA_KEY = 'sb_publishable_JjjwbGDtHqQs4f1cygvYAA_csqm9wxt'
+const supabase = createClient(SUPA_URL, SUPA_KEY)
 
 const LOGO_SVG = (
   <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 0 720 670" style={{ flexShrink: 0 }}>
@@ -14,18 +12,13 @@ const LOGO_SVG = (
   </svg>
 )
 
-export default function DashboardPage() {
-  const [token, setToken] = useState('')
+const DOCS = [
+  { href: '/legal/offer', icon: '📄', title: 'Публичная оферта', desc: 'Условия размещения объектов и использования сервиса' },
+  { href: '/legal/privacy', icon: '🔒', title: 'Политика конфиденциальности', desc: 'Как мы обрабатываем персональные данные' },
+  { href: '/legal/terms', icon: '📋', title: 'Пользовательское соглашение', desc: 'Правила использования сайта Курортрум' },
+]
 
-  useEffect(() => {
-    const t = localStorage.getItem('sb_token')
-    if (!t) {
-      window.location.href = '/auth/login'
-    } else {
-      setToken(t)
-    }
-  }, [])
-
+export default function DocumentsPage() {
   async function handleLogout() {
     await supabase.auth.signOut()
     localStorage.removeItem('sb_token')
@@ -37,9 +30,6 @@ export default function DashboardPage() {
       <style>{`
         @media (max-width: 768px) {
           .cabinet-nav { padding: 0 16px !important; }
-          .cabinet-nav-links { gap: 10px !important; }
-          .stats-grid { grid-template-columns: 1fr !important; }
-          .menu-grid { grid-template-columns: 1fr !important; }
           .cabinet-pad { padding: 24px 16px !important; }
         }
         @media (max-width: 480px) {
@@ -59,7 +49,7 @@ export default function DashboardPage() {
           </div>
         </a>
         <div className="cabinet-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <a className="cabinet-link" href="/dashboard" style={{ color: '#0F4C5C', fontSize: '14px', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>Кабинет</a>
+          <a className="cabinet-link" href="/dashboard" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none', whiteSpace: 'nowrap' }}>Кабинет</a>
           <a className="cabinet-link" href="/dashboard/properties" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none', whiteSpace: 'nowrap' }}>Мои объекты</a>
           <a className="cabinet-link" href="/dashboard/leads" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none', whiteSpace: 'nowrap' }}>Заявки</a>
           <button className="cabinet-logout" onClick={handleLogout} style={{ background: 'none', border: '1.5px solid #e5e7eb', color: '#374151', padding: '8px 18px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
@@ -68,53 +58,26 @@ export default function DashboardPage() {
         </div>
       </nav>
 
-      <div className="cabinet-pad" style={{ maxWidth: '900px', margin: '0 auto', padding: '32px 24px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#1a1a1a', marginBottom: '8px' }}>Добро пожаловать! 👋</h1>
-        <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '32px' }}>Управляйте своими объектами и заявками</p>
+      <div className="cabinet-pad" style={{ maxWidth: '700px', margin: '0 auto', padding: '32px 24px' }}>
+        <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#1a1a1a', marginBottom: '4px' }}>Документы</h1>
+        <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '28px' }}>Юридические документы сервиса Курортрум</p>
 
-        {/* Карточки статистики */}
-        <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '32px' }}>
-          <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px' }}>
-            <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>Мои объекты</div>
-            <div style={{ fontSize: '28px', fontWeight: 600, color: '#1a1a1a' }}>0</div>
-          </div>
-          <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px' }}>
-            <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>Заявки</div>
-            <div style={{ fontSize: '28px', fontWeight: 600, color: '#1a1a1a' }}>0</div>
-          </div>
-          <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px' }}>
-            <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>Подписка</div>
-            <div style={{ fontSize: '16px', fontWeight: 600, color: '#2BAE8E' }}>Пробный период</div>
-          </div>
-        </div>
-
-        {/* Меню */}
-        <div className="menu-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-          <a href="/dashboard/properties" style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', textDecoration: 'none', color: '#1a1a1a', display: 'block' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>🏠</div>
-            <div style={{ fontWeight: 500, fontSize: '16px', marginBottom: '4px' }}>Мои объекты</div>
-            <div style={{ fontSize: '13px', color: '#6b7280' }}>Добавить и управлять жильём</div>
-          </a>
-          <a href="/dashboard/leads" style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', textDecoration: 'none', color: '#1a1a1a', display: 'block' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>📩</div>
-            <div style={{ fontWeight: 500, fontSize: '16px', marginBottom: '4px' }}>Заявки</div>
-            <div style={{ fontSize: '13px', color: '#6b7280' }}>Заявки от туристов</div>
-          </a>
-          <a href="/dashboard/subscription" style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', textDecoration: 'none', color: '#1a1a1a', display: 'block' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>💳</div>
-            <div style={{ fontWeight: 500, fontSize: '16px', marginBottom: '4px' }}>Подписка</div>
-            <div style={{ fontSize: '13px', color: '#6b7280' }}>Тарифы и оплата</div>
-          </a>
-          <a href="/dashboard/stats" style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', textDecoration: 'none', color: '#1a1a1a', display: 'block' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>📊</div>
-            <div style={{ fontWeight: 500, fontSize: '16px', marginBottom: '4px' }}>Статистика</div>
-            <div style={{ fontSize: '13px', color: '#6b7280' }}>Просмотры и активность</div>
-          </a>
-          <a href="/dashboard/documents" style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '24px', textDecoration: 'none', color: '#1a1a1a', display: 'block' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>📄</div>
-            <div style={{ fontWeight: 500, fontSize: '16px', marginBottom: '4px' }}>Документы</div>
-            <div style={{ fontSize: '13px', color: '#6b7280' }}>Юридические документы</div>
-          </a>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {DOCS.map(doc => (
+            <a
+              key={doc.href}
+              href={doc.href}
+              target="_blank"
+              style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px', textDecoration: 'none', color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: '16px' }}
+            >
+              <div style={{ fontSize: '28px', width: '48px', height: '48px', background: '#f0fdf9', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{doc.icon}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '2px' }}>{doc.title}</div>
+                <div style={{ fontSize: '13px', color: '#6b7280' }}>{doc.desc}</div>
+              </div>
+              <span style={{ color: '#2BAE8E', fontSize: '18px' }}>→</span>
+            </a>
+          ))}
         </div>
       </div>
     </main>

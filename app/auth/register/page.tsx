@@ -16,17 +16,25 @@ const LOGO_SVG = (
 function SiteNav() {
   return (
     <nav style={{ background: 'white', borderBottom: '1px solid #f0f0f0', padding: '0 32px', height: '72px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 8px rgba(0,0,0,0.04)', flexShrink: 0 }}>
+      <style>{`
+        @media (max-width: 520px) {
+          .nav-wordmark { display: none !important; }
+          .nav-links-row { gap: 8px !important; }
+          .nav-link { font-size: 12px !important; }
+          .nav-cta { padding: 7px 12px !important; font-size: 12px !important; }
+        }
+      `}</style>
       <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
         {LOGO_SVG}
-        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+        <div className="nav-wordmark" style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
           <span style={{ fontSize: '18px', fontWeight: 800, color: '#0F4C5C', letterSpacing: '-0.03em' }}>Курорт<span style={{ color: '#2BAE8E' }}>рум</span></span>
           <span style={{ fontSize: '10px', color: '#9ca3af', letterSpacing: '0.08em' }}>жильё на КМВ</span>
         </div>
       </a>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        <a href="/catalog" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none' }}>Жильё</a>
-        <a href="/for-owners" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none' }}>Владельцам</a>
-        <a href="/auth/register" style={{ background: 'linear-gradient(135deg, #0F4C5C 0%, #12A387 100%)', color: 'white', padding: '8px 18px', borderRadius: '10px', textDecoration: 'none', fontSize: '13px', fontWeight: 600 }}>
+      <div className="nav-links-row" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <a className="nav-link" href="/catalog" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none' }}>Жильё</a>
+        <a className="nav-link" href="/for-owners" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none' }}>Владельцам</a>
+        <a className="nav-cta" href="/auth/register" style={{ background: 'linear-gradient(135deg, #0F4C5C 0%, #12A387 100%)', color: 'white', padding: '8px 18px', borderRadius: '10px', textDecoration: 'none', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' }}>
           Разместить объект
         </a>
       </div>
@@ -57,10 +65,15 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [agreed, setAgreed] = useState(false)
 
   async function handleRegister() {
     if (!name || !email || !password) {
       setError('Заполните все поля')
+      return
+    }
+    if (!agreed) {
+      setError('Нужно принять условия оферты и политики конфиденциальности')
       return
     }
     setLoading(true)
@@ -140,10 +153,24 @@ export default function RegisterPage() {
               onChange={e => setPassword(e.target.value)}
               style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '12px', fontSize: '14px' }}
             />
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '13px', color: '#6b7280', lineHeight: 1.5, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={e => { setAgreed(e.target.checked); setError('') }}
+                style={{ marginTop: '2px', flexShrink: 0, width: '16px', height: '16px', accentColor: '#2BAE8E' }}
+              />
+              <span>
+                Я принимаю условия{' '}
+                <a href="/legal/offer" target="_blank" style={{ color: '#2BAE8E' }}>публичной оферты</a>,{' '}
+                <a href="/legal/privacy" target="_blank" style={{ color: '#2BAE8E' }}>политики конфиденциальности</a> и{' '}
+                <a href="/legal/terms" target="_blank" style={{ color: '#2BAE8E' }}>пользовательского соглашения</a>
+              </span>
+            </label>
             <button
               onClick={handleRegister}
-              disabled={loading}
-              style={{ background: '#2BAE8E', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '15px', fontWeight: 500, cursor: 'pointer', opacity: loading ? 0.7 : 1 }}
+              disabled={loading || !agreed}
+              style={{ background: '#2BAE8E', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '15px', fontWeight: 500, cursor: (loading || !agreed) ? 'not-allowed' : 'pointer', opacity: (loading || !agreed) ? 0.5 : 1 }}
             >
               {loading ? 'Регистрируем...' : 'Зарегистрироваться'}
             </button>

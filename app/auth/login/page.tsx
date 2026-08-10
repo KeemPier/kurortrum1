@@ -47,18 +47,26 @@ export default function LoginPage() {
 
   return (
     <main style={{ fontFamily: 'sans-serif', minHeight: '100vh', background: '#f8f7f4', display: 'flex', flexDirection: 'column' }}>
+      <style>{`
+        @media (max-width: 520px) {
+          .nav-wordmark { display: none !important; }
+          .nav-links-row { gap: 8px !important; }
+          .nav-link { font-size: 12px !important; }
+          .nav-cta { padding: 7px 12px !important; font-size: 12px !important; }
+        }
+      `}</style>
       <nav style={{ background: 'white', borderBottom: '1px solid #f0f0f0', padding: '0 32px', height: '72px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 8px rgba(0,0,0,0.04)', flexShrink: 0 }}>
         <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
           {LOGO_SVG}
-          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+          <div className="nav-wordmark" style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
             <span style={{ fontSize: '18px', fontWeight: 800, color: '#0F4C5C', letterSpacing: '-0.03em' }}>Курорт<span style={{ color: '#2BAE8E' }}>рум</span></span>
             <span style={{ fontSize: '10px', color: '#9ca3af', letterSpacing: '0.08em' }}>жильё на КМВ</span>
           </div>
         </a>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <a href="/catalog" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none' }}>Жильё</a>
-          <a href="/for-owners" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none' }}>Владельцам</a>
-          <a href="/auth/register" style={{ background: 'linear-gradient(135deg, #0F4C5C 0%, #12A387 100%)', color: 'white', padding: '8px 18px', borderRadius: '10px', textDecoration: 'none', fontSize: '13px', fontWeight: 600 }}>
+        <div className="nav-links-row" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <a className="nav-link" href="/catalog" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none' }}>Жильё</a>
+          <a className="nav-link" href="/for-owners" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none' }}>Владельцам</a>
+          <a className="nav-cta" href="/auth/register" style={{ background: 'linear-gradient(135deg, #0F4C5C 0%, #12A387 100%)', color: 'white', padding: '8px 18px', borderRadius: '10px', textDecoration: 'none', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' }}>
             Разместить объект
           </a>
         </div>

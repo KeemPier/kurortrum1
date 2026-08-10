@@ -13,55 +13,54 @@ const LOGO_SVG = (
   </svg>
 )
 
-export default function AdminPage() {
-  const [properties, setProperties] = useState<any[]>([])
+export default function StatsPage() {
+  const [rows, setRows] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState<'pending' | 'active'>('pending')
+  const [totalLeads, setTotalLeads] = useState(0)
 
   useEffect(() => {
-    loadProperties()
-  }, [tab])
+    const t = localStorage.getItem('sb_token')
+    if (!t) { window.location.href = '/auth/login'; return }
+    loadStats()
+  }, [])
 
-  async function loadProperties() {
+  async function loadStats() {
     setLoading(true)
     const token = localStorage.getItem('sb_token')
-    const res = await fetch(
-      `${SUPA_URL}/rest/v1/properties?select=*,property_images(url),profiles(name,email,phone)&is_active=eq.${tab === 'active'}&order=created_at.desc`,
+    const userRes = await fetch(`${SUPA_URL}/auth/v1/user`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` }
+    })
+    const userData = await userRes.json()
+
+    const propsRes = await fetch(
+      `${SUPA_URL}/rest/v1/properties?select=id,title,city,is_active,created_at&owner_id=eq.${userData.id}&order=created_at.desc`,
       { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` } }
     )
-    const data = await res.json()
-    setProperties(Array.isArray(data) ? data : [])
+    const props = await propsRes.json()
+    const properties = Array.isArray(props) ? props : []
+
+    if (properties.length === 0) {
+      setRows([])
+      setLoading(false)
+      return
+    }
+
+    const ids = properties.map((p: any) => p.id).join(',')
+    const leadsRes = await fetch(
+      `${SUPA_URL}/rest/v1/leads?select=id,property_id&property_id=in.(${ids})`,
+      { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${token}` } }
+    )
+    const leadsData = await leadsRes.json()
+    const leads = Array.isArray(leadsData) ? leadsData : []
+
+    const withCounts = properties.map((p: any) => ({
+      ...p,
+      leadsCount: leads.filter((l: any) => l.property_id === p.id).length,
+    }))
+
+    setRows(withCounts)
+    setTotalLeads(leads.length)
     setLoading(false)
-  }
-
-  async function approve(id: string) {
-    const token = localStorage.getItem('sb_token')
-    await fetch(`${SUPA_URL}/rest/v1/properties?id=eq.${id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPA_KEY,
-        'Authorization': `Bearer ${token}`,
-        'Prefer': 'return=minimal',
-      },
-      body: JSON.stringify({ is_active: true }),
-    })
-    loadProperties()
-  }
-
-  async function reject(id: string) {
-    const token = localStorage.getItem('sb_token')
-    await fetch(`${SUPA_URL}/rest/v1/properties?id=eq.${id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPA_KEY,
-        'Authorization': `Bearer ${token}`,
-        'Prefer': 'return=minimal',
-      },
-      body: JSON.stringify({ is_active: false }),
-    })
-    loadProperties()
   }
 
   async function handleLogout() {
@@ -75,10 +74,10 @@ export default function AdminPage() {
       <style>{`
         @media (max-width: 768px) {
           .cabinet-nav { padding: 0 16px !important; }
-          .cabinet-nav-links { gap: 10px !important; }
           .cabinet-pad { padding: 24px 16px !important; }
-          .admin-row-grid { grid-template-columns: 64px 1fr !important; }
-          .admin-actions { grid-column: 1 / -1 !important; flex-direction: row !important; margin-top: 12px; }
+          .stats-summary-grid { grid-template-columns: 1fr !important; }
+          .stats-table-head, .stats-table-row { grid-template-columns: 1fr 70px 70px !important; }
+          .stats-col-views { display: none !important; }
         }
         @media (max-width: 480px) {
           .nav-wordmark { display: none !important; }
@@ -93,7 +92,7 @@ export default function AdminPage() {
           {LOGO_SVG}
           <div className="nav-wordmark" style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
             <span style={{ fontSize: '18px', fontWeight: 800, color: '#0F4C5C', letterSpacing: '-0.03em' }}>Курорт<span style={{ color: '#2BAE8E' }}>рум</span></span>
-            <span style={{ fontSize: '10px', color: '#9ca3af', letterSpacing: '0.08em' }}>админ-панель</span>
+            <span style={{ fontSize: '10px', color: '#9ca3af', letterSpacing: '0.08em' }}>жильё на КМВ</span>
           </div>
         </a>
         <div className="cabinet-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -107,76 +106,65 @@ export default function AdminPage() {
       </nav>
 
       <div className="cabinet-pad" style={{ maxWidth: '900px', margin: '0 auto', padding: '32px 24px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#1a1a1a', marginBottom: '24px' }}>Модерация объектов</h1>
-
-        <div style={{ display: 'flex', gap: '0', borderBottom: '1px solid #e5e7eb', marginBottom: '24px' }}>
-          <button
-            onClick={() => setTab('pending')}
-            style={{ padding: '10px 20px', fontSize: '14px', border: 'none', background: 'none', cursor: 'pointer', borderBottom: tab === 'pending' ? '2px solid #2BAE8E' : '2px solid transparent', color: tab === 'pending' ? '#0F4C5C' : '#6b7280', fontWeight: tab === 'pending' ? 600 : 400, fontFamily: 'inherit' }}
-          >
-            Ожидают проверки
-          </button>
-          <button
-            onClick={() => setTab('active')}
-            style={{ padding: '10px 20px', fontSize: '14px', border: 'none', background: 'none', cursor: 'pointer', borderBottom: tab === 'active' ? '2px solid #2BAE8E' : '2px solid transparent', color: tab === 'active' ? '#0F4C5C' : '#6b7280', fontWeight: tab === 'active' ? 600 : 400, fontFamily: 'inherit' }}
-          >
-            Активные
-          </button>
-        </div>
+        <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#1a1a1a', marginBottom: '4px' }}>Статистика</h1>
+        <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '28px' }}>Просмотры и заявки по вашим объектам</p>
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px', color: '#6b7280' }}>Загружаем...</div>
-        ) : properties.length === 0 ? (
+        ) : rows.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px', color: '#6b7280', background: 'white', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
-            <div style={{ fontSize: '40px', marginBottom: '16px' }}>🏠</div>
-            <div style={{ fontSize: '16px', fontWeight: 500 }}>Объектов нет</div>
+            <div style={{ fontSize: '40px', marginBottom: '16px' }}>📊</div>
+            <div style={{ fontSize: '16px', fontWeight: 500, marginBottom: '8px' }}>Пока нечего показать</div>
+            <div style={{ fontSize: '14px' }}>Добавьте объект — и здесь появится статистика по нему</div>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {properties.map(p => (
-              <div key={p.id} style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px' }}>
-                <div className="admin-row-grid" style={{ display: 'grid', gridTemplateColumns: '80px 1fr auto', gap: '16px', alignItems: 'start' }}>
-                  <div style={{ width: '80px', height: '80px', background: '#f0fdf9', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
-                    {p.property_images?.[0]?.url
-                      ? <img src={p.property_images[0].url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : '🏠'}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 500, fontSize: '16px', marginBottom: '4px', color: '#1a1a1a' }}>{p.title}</div>
-                    <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '4px' }}>📍 {p.city} · {p.rooms} комн. · {p.price_per_night?.toLocaleString()} ₽/ночь</div>
-                    <div style={{ fontSize: '13px', color: '#6b7280' }}>
-                      👤 {p.profiles?.name || 'Владелец'} · {p.profiles?.email}
-                    </div>
-                  </div>
-                  <div className="admin-actions" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {tab === 'pending' ? (
-                      <>
-                        <button
-                          onClick={() => approve(p.id)}
-                          style={{ background: '#2BAE8E', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '14px', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit' }}
-                        >
-                          ✓ Одобрить
-                        </button>
-                        <button
-                          onClick={() => reject(p.id)}
-                          style={{ background: 'white', color: '#dc2626', border: '1px solid #fecaca', padding: '8px 16px', borderRadius: '8px', fontSize: '14px', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit' }}
-                        >
-                          ✗ Отклонить
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        onClick={() => reject(p.id)}
-                        style={{ background: 'white', color: '#dc2626', border: '1px solid #fecaca', padding: '8px 16px', borderRadius: '8px', fontSize: '14px', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit' }}
-                      >
-                        Деактивировать
-                      </button>
-                    )}
-                  </div>
-                </div>
+          <>
+            <div className="stats-summary-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '28px' }}>
+              <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px' }}>
+                <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>Объектов</div>
+                <div style={{ fontSize: '28px', fontWeight: 600, color: '#1a1a1a' }}>{rows.length}</div>
               </div>
-            ))}
-          </div>
+              <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px' }}>
+                <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>Всего заявок</div>
+                <div style={{ fontSize: '28px', fontWeight: 600, color: '#1a1a1a' }}>{totalLeads}</div>
+              </div>
+              <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px' }}>
+                <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '8px' }}>Просмотры</div>
+                <div style={{ fontSize: '16px', fontWeight: 600, color: '#2BAE8E' }}>Скоро</div>
+              </div>
+            </div>
+
+            <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden' }}>
+              <div className="stats-table-head" style={{ display: 'grid', gridTemplateColumns: '1fr 90px 90px 90px', gap: '8px', padding: '12px 20px', background: '#f8f7f4', fontSize: '12px', color: '#6b7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <span>Объект</span>
+                <span className="stats-col-views" style={{ textAlign: 'right' }}>Просмотры</span>
+                <span style={{ textAlign: 'right' }}>Заявки</span>
+                <span style={{ textAlign: 'right' }}>Статус</span>
+              </div>
+              {rows.map((p, i) => (
+                <div
+                  key={p.id}
+                  className="stats-table-row"
+                  style={{ display: 'grid', gridTemplateColumns: '1fr 90px 90px 90px', gap: '8px', padding: '14px 20px', alignItems: 'center', fontSize: '14px', borderTop: i > 0 ? '1px solid #f0f0f0' : 'none' }}
+                >
+                  <div>
+                    <div style={{ fontWeight: 600, color: '#1a1a1a' }}>{p.title}</div>
+                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>{p.city}</div>
+                  </div>
+                  <span className="stats-col-views" style={{ textAlign: 'right', color: '#9ca3af' }}>—</span>
+                  <span style={{ textAlign: 'right', fontWeight: 600, color: '#0F4C5C' }}>{p.leadsCount}</span>
+                  <span style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: '12px', padding: '3px 10px', borderRadius: '100px', fontWeight: 600, background: p.is_active ? '#f0fdf9' : '#fef3c7', color: p.is_active ? '#0E8E76' : '#92400e' }}>
+                      {p.is_active ? 'Активен' : 'На проверке'}
+                    </span>
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '12px' }}>
+              Счётчик просмотров объектов подключим в одном из ближайших обновлений — сейчас в таблице только реальные данные по заявкам.
+            </p>
+          </>
         )}
       </div>
     </main>

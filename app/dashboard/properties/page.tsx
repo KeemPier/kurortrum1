@@ -1,11 +1,13 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { createClient } from '@supabase/supabase-js'
 
 const CITIES = ['Кисловодск', 'Пятигорск', 'Ессентуки', 'Железноводск']
 const AMENITIES_LIST = ['Wi-Fi', 'Кондиционер', 'Кухня', 'Стиральная машина', 'Телевизор', 'Холодильник', 'Фен', 'Утюг', 'Трансфер']
 const SUPA_URL = 'https://okaibdzoeteccckmgyvy.supabase.co'
 const SUPA_KEY = 'sb_publishable_JjjwbGDtHqQs4f1cygvYAA_csqm9wxt'
 const YANDEX_KEY = '889183a7-1d4c-49c5-81c0-228c39534bf4'
+const supabase = createClient(SUPA_URL, SUPA_KEY)
 
 const LOGO_SVG = (
   <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 0 720 670" style={{ flexShrink: 0 }}>
@@ -171,6 +173,12 @@ export default function PropertiesPage() {
     setImages([]); setPreviews([])
   }
 
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    localStorage.removeItem('sb_token')
+    window.location.href = '/'
+  }
+
   return (
     <main style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", background: '#f8f7f4', minHeight: '100vh' }}>
       <style>{`
@@ -189,25 +197,43 @@ export default function PropertiesPage() {
         .status-badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 600; }
         .status-pending { background: #fef3c7; color: #92400e; }
         .status-active { background: #d1fae5; color: #065f46; }
+        @media (max-width: 768px) {
+          .cabinet-nav { padding: 0 16px !important; }
+          .cabinet-nav-links { gap: 10px !important; }
+          .cabinet-pad { padding: 24px 16px !important; }
+          .form-grid-2 { grid-template-columns: 1fr !important; }
+          .form-grid-4 { grid-template-columns: 1fr 1fr !important; }
+        }
+        @media (max-width: 480px) {
+          .nav-wordmark { display: none !important; }
+          .cabinet-nav-links { gap: 6px !important; }
+          .cabinet-link { font-size: 11px !important; }
+          .cabinet-logout { padding: 6px 10px !important; font-size: 11px !important; }
+        }
       `}</style>
 
       {/* NAV */}
-      <nav style={{ background: 'white', borderBottom: '1px solid #f0f0f0', padding: '0 32px', height: '72px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
-        <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <nav className="cabinet-nav" style={{ background: 'white', borderBottom: '1px solid #f0f0f0', padding: '0 32px', height: '72px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
+        <a href="/dashboard" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
           {LOGO_SVG}
-          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+          <div className="nav-wordmark" style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
             <span style={{ fontSize: '18px', fontWeight: 800, color: '#0F4C5C', letterSpacing: '-0.03em' }}>Курорт<span style={{ color: '#2BAE8E' }}>рум</span></span>
             <span style={{ fontSize: '10px', color: '#9ca3af', letterSpacing: '0.08em' }}>жильё на КМВ</span>
           </div>
         </a>
-        <a href="/dashboard" style={{ fontSize: '14px', color: '#6b7280', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          ← Личный кабинет
-        </a>
+        <div className="cabinet-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <a className="cabinet-link" href="/dashboard" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none', whiteSpace: 'nowrap' }}>Кабинет</a>
+          <a className="cabinet-link" href="/dashboard/properties" style={{ color: '#0F4C5C', fontSize: '14px', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>Мои объекты</a>
+          <a className="cabinet-link" href="/dashboard/leads" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none', whiteSpace: 'nowrap' }}>Заявки</a>
+          <button className="cabinet-logout" onClick={handleLogout} style={{ background: 'none', border: '1.5px solid #e5e7eb', color: '#374151', padding: '8px 18px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+            Выход
+          </button>
+        </div>
       </nav>
 
-      <div style={{ maxWidth: '760px', margin: '0 auto', padding: '36px 24px' }}>
+      <div className="cabinet-pad" style={{ maxWidth: '760px', margin: '0 auto', padding: '36px 24px' }}>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#0F4C5C', margin: '0 0 4px', letterSpacing: '-0.02em' }}>Мои объекты</h1>
             <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>Управляйте своими объявлениями</p>
@@ -247,7 +273,7 @@ export default function PropertiesPage() {
               </div>
 
               {/* Город + Тип */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                 <div>
                   <label className="field-label">Город <span>*</span></label>
                   <select className="field-input" value={city} onChange={e => setCity(e.target.value)}>
@@ -277,7 +303,7 @@ export default function PropertiesPage() {
               </div>
 
               {/* Цена / Гости / Комнаты / Кровати */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '12px' }}>
+              <div className="form-grid-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '12px' }}>
                 <div>
                   <label className="field-label">Цена ₽/ночь <span>*</span></label>
                   <input className="field-input" type="number" placeholder="2500" value={price} onChange={e => setPrice(e.target.value)} />
@@ -297,7 +323,7 @@ export default function PropertiesPage() {
               </div>
 
               {/* Парковка + Животные */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <button className={`toggle-row${parking ? ' on' : ''}`} onClick={() => setParking(!parking)}>
                   <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: `2px solid ${parking ? '#2BAE8E' : '#d1d5db'}`, background: parking ? '#2BAE8E' : 'white', flexShrink: 0, transition: 'all 0.2s' }} />
                   🚗 Есть парковка
