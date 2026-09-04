@@ -179,6 +179,13 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      <footer style={{ borderTop: '1px solid #f0f0f0', padding: '20px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', marginTop: '40px' }}>
+        <a href="/" style={{ textDecoration: 'none' }}>
+          <img src="/logo.svg" alt="Курортрум" style={{ height: '70px', width: 'auto' }} />
+        </a>
+        <span style={{ fontSize: '13px', color: '#9ca3af' }}>© 2026 · Курортрум</span>
+      </footer>
     </main>
   )
 }
