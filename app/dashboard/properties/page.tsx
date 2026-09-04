@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
 const CITIES = ['Кисловодск', 'Пятигорск', 'Ессентуки', 'Железноводск']
-const AMENITIES_LIST = ['Wi-Fi', 'Кондиционер', 'Кухня', 'Стиральная машина', 'Телевизор', 'Холодильник', 'Фен', 'Утюг', 'Трансфер']
+const AMENITIES_LIST = ['Wi-Fi', 'Кондиционер', 'Кухня', 'Стиральная машина', 'Телевизор', 'Спутниковое ТВ', 'Холодильник', 'Фен', 'Утюг', 'Трансфер']
 const SUPA_URL = 'https://okaibdzoeteccckmgyvy.supabase.co'
 const SUPA_KEY = 'sb_publishable_JjjwbGDtHqQs4f1cygvYAA_csqm9wxt'
 const YANDEX_KEY = '889183a7-1d4c-49c5-81c0-228c39534bf4'
