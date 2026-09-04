@@ -1,7 +1,14 @@
 'use client'
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
+
+// Виджет предназначен только для публичных страниц сайта (главная, каталог,
+// объект, для владельцев) — в личном кабинете, админке, юр.документах и на
+// формах входа/регистрации он не нужен и перекрывает интерфейс.
+const HIDDEN_PREFIXES = ['/dashboard', '/admin', '/auth', '/legal']
 
 export default function QuickSelect() {
+  const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [phone, setPhone] = useState('')
   const [wish, setWish] = useState('')
@@ -24,6 +31,8 @@ export default function QuickSelect() {
       setAgreeError(false)
     }, 3000)
   }
+
+  if (HIDDEN_PREFIXES.some(p => pathname?.startsWith(p))) return null
 
   return (
     <>

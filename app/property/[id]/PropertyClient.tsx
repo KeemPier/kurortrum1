@@ -53,83 +53,47 @@ export default function PropertyClient({ id }: { id: string }) {
     setSent(true)
   }
 
-  const Nav = (
-    <nav style={{ background: 'white', borderBottom: '1px solid #f0f0f0', padding: '0 32px', height: '72px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 8px rgba(0,0,0,0.04)', flexShrink: 0 }}>
-      <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        {LOGO_SVG}
-        <div className="nav-wordmark" style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
-          <span style={{ fontSize: '18px', fontWeight: 800, color: '#0F4C5C', letterSpacing: '-0.03em' }}>Курорт<span style={{ color: '#2BAE8E' }}>рум</span></span>
-          <span style={{ fontSize: '10px', color: '#9ca3af', letterSpacing: '0.08em' }}>жильё на КМВ</span>
-        </div>
-      </a>
-      <div className="nav-links-row" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        <a className="nav-link" href="/catalog" style={{ color: '#0F4C5C', fontSize: '14px', textDecoration: 'none', fontWeight: 600 }}>Жильё</a>
-        <a className="nav-link" href="/for-owners" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none' }}>Владельцам</a>
-        <a className="nav-cta" href="/auth/register" style={{ background: 'linear-gradient(135deg, #0F4C5C 0%, #12A387 100%)', color: 'white', padding: '8px 18px', borderRadius: '10px', textDecoration: 'none', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' }}>
-          Разместить объект
-        </a>
-      </div>
-    </nav>
-  )
-
-  const Footer = (
-    <footer style={{ borderTop: '1px solid #f0f0f0', padding: '20px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', background: 'white', flexShrink: 0 }}>
-      <a href="/" style={{ textDecoration: 'none' }}>
-        <img src="/logo.svg" alt="Курортрум" style={{ height: '70px', width: 'auto' }} />
-      </a>
-      <span style={{ fontSize: '13px', color: '#9ca3af' }}>© 2026 · Жильё на Кавказских Минеральных Водах</span>
-      <div style={{ display: 'flex', gap: '20px' }}>
-        <a href="/catalog" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>Жильё</a>
-        <a href="/for-owners" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>Владельцам</a>
-      </div>
-    </footer>
-  )
-
-  const StyleTag = (
-    <style>{`
-      @media (max-width: 768px) {
-        .property-grid { grid-template-columns: 1fr !important; }
-        .property-pad { padding: 16px !important; }
-        .photo-box { height: 220px !important; }
-        .contact-card { position: static !important; }
-        .catalog-nav-p { padding: 0 16px !important; }
-      }
-      @media (max-width: 520px) {
-        .nav-wordmark { display: none !important; }
-        .nav-links-row { gap: 8px !important; }
-        .nav-link { font-size: 12px !important; }
-        .nav-cta { padding: 7px 12px !important; font-size: 12px !important; }
-      }
-    `}</style>
-  )
-
-  if (loading) return (
-    <main style={{ fontFamily: 'sans-serif', background: '#f8f7f4', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {StyleTag}
-      {Nav}
-      <div style={{ flex: 1, textAlign: 'center', padding: '80px', color: '#6b7280' }}>Загружаем...</div>
-      {Footer}
-    </main>
-  )
-  if (!property) return (
-    <main style={{ fontFamily: 'sans-serif', background: '#f8f7f4', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {StyleTag}
-      {Nav}
-      <div style={{ flex: 1, textAlign: 'center', padding: '80px', color: '#6b7280' }}>Объект не найден</div>
-      {Footer}
-    </main>
-  )
+  if (loading) return <div style={{ fontFamily: 'sans-serif', textAlign: 'center', padding: '80px', color: '#6b7280' }}>Загружаем...</div>
+  if (!property) return <div style={{ fontFamily: 'sans-serif', textAlign: 'center', padding: '80px', color: '#6b7280' }}>Объект не найден</div>
 
   return (
-    <main style={{ fontFamily: 'sans-serif', background: '#f8f7f4', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {StyleTag}
+    <main style={{ fontFamily: 'sans-serif', background: '#f8f7f4', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .property-grid { grid-template-columns: 1fr !important; }
+          .property-pad { padding: 16px !important; }
+          .photo-box { height: 220px !important; }
+          .contact-card { position: static !important; }
+        }
+        @media (max-width: 520px) {
+          .nav-wordmark { display: none !important; }
+          .nav-links-row { gap: 8px !important; }
+          .nav-link { font-size: 12px !important; }
+          .nav-cta { padding: 7px 12px !important; font-size: 12px !important; }
+        }
+      `}</style>
 
-      {Nav}
+      <nav style={{ background: 'white', borderBottom: '1px solid #f0f0f0', padding: '0 32px', height: '72px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
+        <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {LOGO_SVG}
+          <div className="nav-wordmark" style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+            <span style={{ fontSize: '18px', fontWeight: 800, color: '#0F4C5C', letterSpacing: '-0.03em' }}>Курорт<span style={{ color: '#2BAE8E' }}>рум</span></span>
+            <span style={{ fontSize: '10px', color: '#9ca3af', letterSpacing: '0.08em' }}>жильё на КМВ</span>
+          </div>
+        </a>
+        <div className="nav-links-row" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <a className="nav-link" href="/catalog" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none' }}>← Каталог</a>
+          <a className="nav-link" href="/for-owners" style={{ color: '#6b7280', fontSize: '14px', textDecoration: 'none' }}>Владельцам</a>
+          <a className="nav-cta" href="/auth/register" style={{ background: 'linear-gradient(135deg, #0F4C5C 0%, #12A387 100%)', color: 'white', padding: '8px 18px', borderRadius: '10px', textDecoration: 'none', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' }}>
+            Разместить объект
+          </a>
+        </div>
+      </nav>
 
-      <div className="property-pad" style={{ maxWidth: '1000px', margin: '0 auto', padding: '32px 24px', flex: 1, width: '100%' }}>
+      <div className="property-pad" style={{ maxWidth: '1000px', margin: '0 auto', padding: '32px 24px' }}>
         <div className="property-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '32px' }}>
           <div>
-            <div className="photo-box" style={{ height: '320px', background: '#f0fdf9', borderRadius: '16px', overflow: 'hidden', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px' }}>
+            <div className="photo-box" style={{ height: '320px', background: '#e6f7f3', borderRadius: '16px', overflow: 'hidden', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px' }}>
               {property.property_images?.[0]?.url
                 ? <img src={property.property_images[0].url} alt={property.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 : '🏠'}
@@ -143,25 +107,25 @@ export default function PropertyClient({ id }: { id: string }) {
               </div>
             )}
 
-            <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#1a1a1a', marginBottom: '8px' }}>{property.title}</h1>
+            <h1 style={{ fontSize: '22px', fontWeight: 600, marginBottom: '8px' }}>{property.title}</h1>
             <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '16px' }}>📍 {property.city}, {property.address}</div>
 
             <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-              <span style={{ background: '#f0fdf9', color: '#0F4C5C', padding: '6px 14px', borderRadius: '999px', fontSize: '13px' }}>🛏 {property.rooms} комн.</span>
-              <span style={{ background: '#f0fdf9', color: '#0F4C5C', padding: '6px 14px', borderRadius: '999px', fontSize: '13px' }}>👥 до {property.guests} гостей</span>
-              <span style={{ background: '#f0fdf9', color: '#0F4C5C', padding: '6px 14px', borderRadius: '999px', fontSize: '13px' }}>{property.type === 'apartment' ? '🏢 Квартира' : '🏠 Дом'}</span>
+              <span style={{ background: '#f3f4f6', padding: '6px 14px', borderRadius: '999px', fontSize: '13px' }}>🛏 {property.rooms} комн.</span>
+              <span style={{ background: '#f3f4f6', padding: '6px 14px', borderRadius: '999px', fontSize: '13px' }}>👥 до {property.guests} гостей</span>
+              <span style={{ background: '#f3f4f6', padding: '6px 14px', borderRadius: '999px', fontSize: '13px' }}>{property.type === 'apartment' ? '🏢 Квартира' : '🏠 Дом'}</span>
             </div>
 
             {property.description && (
               <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
-                <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#1a1a1a', marginBottom: '12px' }}>Описание</h2>
+                <h2 style={{ fontSize: '16px', fontWeight: 500, marginBottom: '12px' }}>Описание</h2>
                 <p style={{ fontSize: '14px', color: '#374151', lineHeight: '1.7' }}>{property.description}</p>
               </div>
             )}
 
             {property.amenities?.length > 0 && (
               <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px' }}>
-                <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#1a1a1a', marginBottom: '12px' }}>Удобства</h2>
+                <h2 style={{ fontSize: '16px', fontWeight: 500, marginBottom: '12px' }}>Удобства</h2>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   {property.amenities.map((a: string) => (
                     <span key={a} style={{ background: '#f0fdf9', color: '#0E8E76', padding: '6px 14px', borderRadius: '999px', fontSize: '13px' }}>✓ {a}</span>
@@ -173,7 +137,7 @@ export default function PropertyClient({ id }: { id: string }) {
 
           <div>
             <div className="contact-card" style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '24px', position: 'sticky', top: '24px' }}>
-              <div style={{ fontSize: '28px', fontWeight: 700, color: '#0F4C5C', marginBottom: '4px' }}>{property.price_per_night?.toLocaleString()} ₽</div>
+              <div style={{ fontSize: '28px', fontWeight: 600, color: '#2BAE8E', marginBottom: '4px' }}>{property.price_per_night?.toLocaleString()} ₽</div>
               <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '20px' }}>за ночь</div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
@@ -183,9 +147,9 @@ export default function PropertyClient({ id }: { id: string }) {
               </div>
 
               <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#1a1a1a', marginBottom: '16px' }}>Оставить заявку</h3>
+                <h3 style={{ fontSize: '15px', fontWeight: 500, marginBottom: '16px' }}>Оставить заявку</h3>
                 {sent ? (
-                  <div style={{ background: '#f0fdf9', border: '1px solid #2BAE8E', borderRadius: '10px', padding: '16px', textAlign: 'center', color: '#0F4C5C' }}>
+                  <div style={{ background: '#f0fdf9', border: '1px solid #7ee8d0', borderRadius: '10px', padding: '16px', textAlign: 'center', color: '#0E8E76' }}>
                     ✅ Заявка отправлена!
                   </div>
                 ) : (
@@ -193,7 +157,7 @@ export default function PropertyClient({ id }: { id: string }) {
                     <input placeholder="Ваше имя" value={name} onChange={e => setName(e.target.value)} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '10px 12px', fontSize: '14px' }} />
                     <input placeholder="Телефон" value={phone} onChange={e => setPhone(e.target.value)} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '10px 12px', fontSize: '14px' }} />
                     <textarea placeholder="Сообщение" value={message} onChange={e => setMessage(e.target.value)} rows={3} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '10px 12px', fontSize: '14px', resize: 'none' }} />
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#374151' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
                       <input type="checkbox" checked={needTransfer} onChange={e => setNeedTransfer(e.target.checked)} />
                       Нужен трансфер
                     </label>
@@ -208,7 +172,16 @@ export default function PropertyClient({ id }: { id: string }) {
         </div>
       </div>
 
-      {Footer}
+      <footer style={{ borderTop: '1px solid #e9e9e9', padding: '28px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', background: 'white' }}>
+        <a href="/" style={{ textDecoration: 'none' }}>
+          <img src="/logo.svg" alt="Курортрум" style={{ height: '70px', width: 'auto' }} />
+        </a>
+        <span style={{ fontSize: '13px', color: '#9ca3af' }}>© 2026 · Жильё на Кавказских Минеральных Водах</span>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          <a href="/catalog" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>Жильё</a>
+          <a href="/for-owners" style={{ fontSize: '13px', color: '#6b7280', textDecoration: 'none' }}>Владельцам</a>
+        </div>
+      </footer>
     </main>
   )
 }
