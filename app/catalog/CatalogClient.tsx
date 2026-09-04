@@ -29,17 +29,20 @@ export default function CatalogClient() {
   const [beds, setBeds] = useState(0)
   const [parking, setParking] = useState(false)
   const [pets, setPets] = useState(false)
+  const [hasTV, setHasTV] = useState(false)
+  const [hasSatTV, setHasSatTV] = useState(false)
   const [loading, setLoading] = useState(true)
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list')
   const [mapReady, setMapReady] = useState(false)
   const [activeId, setActiveId] = useState<string | null>(null)
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const c = params.get('city')
     if (c) setCity(c)
   }, [])
 
-  useEffect(() => { loadProperties() }, [city, maxPrice, minPrice, guests, beds, parking, pets])
+  useEffect(() => { loadProperties() }, [city, maxPrice, minPrice, guests, beds, parking, pets, hasTV, hasSatTV])
 
   useEffect(() => {
     if (!(window as any).ymaps) {
@@ -130,16 +133,18 @@ export default function CatalogClient() {
     if (beds > 0) url += `&beds=gte.${beds}`
     if (parking) url += `&parking=eq.true`
     if (pets) url += `&pets=eq.true`
+    if (hasTV) url += `&amenities=cs.{${encodeURIComponent('Телевизор')}}`
+    if (hasSatTV) url += `&amenities=cs.{${encodeURIComponent('Спутниковое ТВ')}}`
     const res = await fetch(url, { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } })
     const data = await res.json()
     setProperties(Array.isArray(data) ? data : [])
     setLoading(false)
   }
 
-  const activeFiltersCount = [city !== 'Все города', maxPrice > 0, minPrice > 0, guests > 1, beds > 0, parking, pets].filter(Boolean).length
+  const activeFiltersCount = [city !== 'Все города', maxPrice > 0, minPrice > 0, guests > 1, beds > 0, parking, pets, hasTV, hasSatTV].filter(Boolean).length
 
   function resetFilters() {
-    setCity('Все города'); setMaxPrice(0); setMinPrice(0); setGuests(1); setBeds(0); setParking(false); setPets(false)
+    setCity('Все города'); setMaxPrice(0); setMinPrice(0); setGuests(1); setBeds(0); setParking(false); setPets(false); setHasTV(false); setHasSatTV(false)
   }
 
   return (
@@ -172,14 +177,14 @@ export default function CatalogClient() {
           .catalog-filters { padding: 12px 16px !important; }
           .filters-grid { grid-template-columns: 1fr 1fr !important; }
         }
-        @media (max-width: 480px) {
-          .filters-grid { grid-template-columns: 1fr !important; }
-        }
         @media (max-width: 520px) {
           .nav-wordmark { display: none !important; }
           .nav-links-row { gap: 8px !important; }
           .nav-link { font-size: 12px !important; }
           .nav-cta { padding: 7px 12px !important; font-size: 12px !important; }
+        }
+        @media (max-width: 480px) {
+          .filters-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
@@ -251,6 +256,12 @@ export default function CatalogClient() {
           </button>
           <button className={`toggle-btn${pets ? ' active' : ''}`} onClick={() => setPets(!pets)} style={{ marginTop: '18px' }}>
             <div className="toggle-dot" />🐾 Животные
+          </button>
+          <button className={`toggle-btn${hasTV ? ' active' : ''}`} onClick={() => setHasTV(!hasTV)} style={{ marginTop: '18px' }}>
+            <div className="toggle-dot" />📺 Телевизор
+          </button>
+          <button className={`toggle-btn${hasSatTV ? ' active' : ''}`} onClick={() => setHasSatTV(!hasSatTV)} style={{ marginTop: '18px' }}>
+            <div className="toggle-dot" />📡 Спутниковое ТВ
           </button>
         </div>
         {activeFiltersCount > 0 && (
